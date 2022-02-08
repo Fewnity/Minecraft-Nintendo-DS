@@ -32,12 +32,13 @@ void Draw3DScene(void)
 	// glScalef(0.1,.)
 	// glTranslatef32(floattof32(-playerPositionF.x), floattof32(-playerPositionF.y), floattof32(-playerPositionF.z));
 	// glTranslatef32(floattof32(-CHUNCK_X_SIZE * 1.1f), floattof32(0), floattof32(CHUNCK_Z_SIZE));
-	glMatrixMode(GL_POSITION);
+
 	playerX = playerPosition.x / 4096;
 	playerXFixed = (playerPosition.x - floattof32(0.5)) / 4096;
 	playerY = playerPosition.y / 4096;
 	playerZ = playerPosition.z / 4096;
 	playerZFixed = (playerPosition.z - floattof32(0.5)) / 4096;
+	// System without greedy (less optimized)
 	NE_PolyBegin(GL_QUAD);
 	// for (int x = 0; x < CHUNCK_X_SIZE; x++)
 	// {
@@ -93,43 +94,105 @@ void Draw3DScene(void)
 	// 	glTranslatef32(floattof32(2), floattof32(-CHUNCK_Y_SIZE * 2), floattof32(0));
 	// }
 
-	// glTranslatef32(floattof32(10), floattof32(0), floattof32(10));
-	drawUpFace2(8);
-
+	// System with greedy mesh but need texture repeatition
 	for (int i = 0; i < greedyCount; i++)
 	{
-		continue;
-		glPushMatrix();
-		glTranslatef32(inttov16(greedyChunk[i].position.x), inttov16(greedyChunk[i].position.y), inttov16(greedyChunk[i].position.z));
-		glScalef32(inttov16(greedyChunk[i].scale.x), inttov16(greedyChunk[i].scale.y), inttov16(greedyChunk[i].scale.z));
 
-		switch (greedyChunk[i].direction)
+		int dir = greedyChunk[i].direction;
+
+		if (dir == EAST)
 		{
-		case EAST:
-			drawEastFace();
-			break;
-
-		case WEST:
-			drawWestFace();
-			break;
-
-		case NORTH:
-			drawNorthFace();
-			break;
-
-		case SOUTH:
-			drawSouthFace();
-			break;
-
-		case UP:
-			drawUpFace();
-			break;
-
-		case DOWN:
-			drawDownFace();
-			break;
+			if (greedyChunk[i].position.z <= playerZFixed * 2)
+			{
+				glPushMatrix();
+				glTranslatef32(inttov16(greedyChunk[i].position.x), inttov16(greedyChunk[i].position.y), inttov16(greedyChunk[i].position.z));
+				glScalef32(inttov16(greedyChunk[i].scale.x), inttov16(greedyChunk[i].scale.y), inttov16(greedyChunk[i].scale.z));
+				drawEastFace();
+				glPopMatrix(1);
+			}
 		}
-		glPopMatrix(1);
+		else if (dir == WEST)
+		{
+			if (greedyChunk[i].position.z > playerZFixed * 2)
+			{
+				glPushMatrix();
+				glTranslatef32(inttov16(greedyChunk[i].position.x), inttov16(greedyChunk[i].position.y), inttov16(greedyChunk[i].position.z));
+				glScalef32(inttov16(greedyChunk[i].scale.x), inttov16(greedyChunk[i].scale.y), inttov16(greedyChunk[i].scale.z));
+				drawWestFace();
+				glPopMatrix(1);
+			}
+		}
+		else if (dir == NORTH)
+		{
+			if (greedyChunk[i].position.x <= playerXFixed * 2)
+			{
+				glPushMatrix();
+				glTranslatef32(inttov16(greedyChunk[i].position.x), inttov16(greedyChunk[i].position.y), inttov16(greedyChunk[i].position.z));
+				glScalef32(inttov16(greedyChunk[i].scale.x), inttov16(greedyChunk[i].scale.y), inttov16(greedyChunk[i].scale.z));
+				drawNorthFace();
+				glPopMatrix(1);
+			}
+		}
+		else if (dir == SOUTH)
+		{
+			if (greedyChunk[i].position.x > playerXFixed * 2)
+			{
+				glPushMatrix();
+				glTranslatef32(inttov16(greedyChunk[i].position.x), inttov16(greedyChunk[i].position.y), inttov16(greedyChunk[i].position.z));
+				glScalef32(inttov16(greedyChunk[i].scale.x), inttov16(greedyChunk[i].scale.y), inttov16(greedyChunk[i].scale.z));
+				drawSouthFace();
+				glPopMatrix(1);
+			}
+		}
+		else if (dir == UP)
+		{
+			if (greedyChunk[i].position.y <= playerY * 2)
+			{
+				glPushMatrix();
+				glTranslatef32(inttov16(greedyChunk[i].position.x), inttov16(greedyChunk[i].position.y), inttov16(greedyChunk[i].position.z));
+				glScalef32(inttov16(greedyChunk[i].scale.x), inttov16(greedyChunk[i].scale.y), inttov16(greedyChunk[i].scale.z));
+				drawUpFace();
+				glPopMatrix(1);
+			}
+		}
+		else if (dir == DOWN)
+		{
+			if (greedyChunk[i].position.y > playerY * 2)
+			{
+				glPushMatrix();
+				glTranslatef32(inttov16(greedyChunk[i].position.x), inttov16(greedyChunk[i].position.y), inttov16(greedyChunk[i].position.z));
+				glScalef32(inttov16(greedyChunk[i].scale.x), inttov16(greedyChunk[i].scale.y), inttov16(greedyChunk[i].scale.z));
+				drawDownFace();
+				glPopMatrix(1);
+			}
+		}
+		// switch (greedyChunk[i].direction)
+		// {
+		// case EAST:
+		// 	drawEastFace();
+		// 	break;
+
+		// case WEST:
+		// 	drawWestFace();
+		// 	break;
+
+		// case NORTH:
+		// 	drawNorthFace();
+		// 	break;
+
+		// case SOUTH:
+		// 	drawSouthFace();
+		// 	break;
+
+		// case UP:
+		// 	drawUpFace();
+		// 	break;
+
+		// case DOWN:
+		// 	drawDownFace();
+		// 	break;
+		// }
+		// glPopMatrix(1);
 	}
 	NE_PolyEnd();
 	// Set view in 2D mode

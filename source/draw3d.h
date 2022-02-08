@@ -27,5 +27,4 @@ void drawNorthFace();
 void drawSouthFace();
 void drawUpFace();
 void drawDownFace();
-void drawUpFace2(int coef);
 #endif // DRAW3D_H_
